@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TicTacToeAdventure</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="playerXTV">PlayerX</string>
+    <string name="playerOTV">PlayerO</string>
+    <string name="humanRB">Human</string>
+    <string name="easyRB">Easy</string>
+    <string name="normalRB">Normal</string>
+    <string name="nightmareRB">Nightmare</string>
+    <string name="hellRB">Hell</string>
+    <string name="customDRB">Custom</string>
+    <string name="startBT">Start</string>
+
+    <string name="title_activity_game_board_display">GameBoardDisplay</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>
