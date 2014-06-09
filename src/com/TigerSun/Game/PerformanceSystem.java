@@ -8,10 +8,12 @@ public class PerformanceSystem {
     private static final String MODEL = "PerformanceSystem";
     public GameProblem prob;
     public GameRecorder gr;
-    public PerformanceSystem (GameProblem prob, GameRecorder gr){
+
+    public PerformanceSystem(GameProblem prob, GameRecorder gr) {
         this.prob = prob;
         this.gr = gr;
     }
+
     public boolean next () {
         if (getCurPlayerType() == PM.T_HUMAN) {
             return true;
@@ -26,9 +28,11 @@ public class PerformanceSystem {
             return false;
         }
     }
-    public GameState getLastState(){
+
+    public GameState getLastState () {
         return gr.getRecord().state;
     }
+
     public int getCurPlayerType () {
         final Record lastRecord = gr.getRecord();
         final int player = lastRecord.nextPlayer;
@@ -49,7 +53,8 @@ public class PerformanceSystem {
     public boolean isEnd () {
         return gr.getRecord().winner != PM.NOT_END;
     }
-    public int winner (){
+
+    public int winner () {
         return gr.getRecord().winner;
     }
 }

@@ -40,7 +40,7 @@ public abstract class GameAnalyser {
             return endScore(player, record.winner);
         } else {
             final ArrayList<Double> attrs = getAttributes(record.state, player);
-            return h.getV(attrs);
+            return h.predict(attrs);
         }
     }
 }

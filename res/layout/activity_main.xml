@@ -46,31 +46,34 @@
                     android:id="@+id/xEasy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/easyRB" />
+                    android:text="@string/easyRB"  />
 
                 <RadioButton
                     android:id="@+id/xNormal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/normalRB" />
+                    android:text="@string/normalRB"  />
 
                 <RadioButton
                     android:id="@+id/xNightmare"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/nightmareRB" />
+                    android:text="@string/nightmareRB"  />
 
                 <RadioButton
                     android:id="@+id/xHell"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/hellRB" />
+                    android:text="@string/hellRB"
+                    android:visibility="invisible"  />
 
                 <RadioButton
                     android:id="@+id/xCustom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/customDRB" />
+                    android:text="@string/customDRB"
+                    android:visibility="invisible" />
+
             </RadioGroup>
 
             <EditText
@@ -78,7 +81,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:inputType="number" />
+                android:inputType="number"
+                android:visibility="invisible"  />
         </LinearLayout>
 
         <LinearLayout
@@ -112,13 +116,13 @@
                     android:id="@+id/oEasy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/easyRB" />
+                    android:text="@string/easyRB"  />
 
                 <RadioButton
                     android:id="@+id/oNormal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/normalRB" />
+                    android:text="@string/normalRB"  />
 
                 <RadioButton
                     android:id="@+id/oNightmare"
@@ -130,13 +134,15 @@
                     android:id="@+id/oHell"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/hellRB" />
+                    android:text="@string/hellRB"
+                    android:visibility="invisible"  />
 
                 <RadioButton
                     android:id="@+id/oCustom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/customDRB" />
+                    android:text="@string/customDRB"
+                    android:visibility="invisible"  />
             </RadioGroup>
 
             <EditText
@@ -144,7 +150,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:inputType="number" />
+                android:inputType="number"
+                android:visibility="invisible"  />
         </LinearLayout>
     </TableRow>
 

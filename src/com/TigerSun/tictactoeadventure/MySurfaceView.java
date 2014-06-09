@@ -14,9 +14,11 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
 import com.TigerSun.Game.GameRecorder;
+import com.TigerSun.Game.LmsHypo;
 import com.TigerSun.Game.PM;
 import com.TigerSun.Game.PerformanceSystem;
 import com.TigerSun.Game.Record;
+import com.TigerSun.MoveMaker.AlphaBetaPlayer;
 import com.TigerSun.MoveMaker.MoveMaker;
 import com.TigerSun.tictactoeadventure.util.Line;
 import com.TigerSun.tictactoeadventure.util.Position;
@@ -35,7 +37,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
     private static final Paint linePaint;
     static {
         linePaint = new Paint();
-        linePaint.setColor(Color.YELLOW);
+        linePaint.setColor(Color.WHITE);
         linePaint.setStrokeWidth(2);
         linePaint.setAntiAlias(true);
     }
@@ -49,7 +51,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         playerPaint[1].setColor(Color.RED);
         playerPaint[1].setAntiAlias(true);
         playerPaint[2] = new Paint();
-        playerPaint[2].setColor(Color.BLUE);
+        playerPaint[2].setColor(Color.YELLOW);
         playerPaint[2].setAntiAlias(true);
     }
     private static final Record INIT_GAME = new Record(new TttState(), null,
@@ -82,14 +84,17 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         if (p1 == PM.T_HUMAN) {
             player1 = null;
         } else {
-            player1 = null;
+            final TttAnalyser analyser1 = new TttAnalyser(LmsHypo.H_SAMPLE);
+            player1 = new AlphaBetaPlayer(analyser1, p1);
         }
         final MoveMaker player2;
         if (p2 == PM.T_HUMAN) {
             player2 = null;
         } else {
-            player2 = null;
+            final TttAnalyser analyser1 = new TttAnalyser(LmsHypo.H_SAMPLE);
+            player2 = new AlphaBetaPlayer(analyser1, p2);
         }
+
         final PM pm = new PM();
         pm.setPlayer(PM.P_1, player1, p1);
         pm.setPlayer(PM.P_2, player2, p2);
@@ -165,7 +170,12 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         Paint paint = new Paint(); 
         paint.setColor(Color.WHITE); 
         paint.setTextSize(20); 
-        canvas.drawText("Winner is player " + p, 100, 25, paint);
+        if (p == PM.TIE){
+            canvas.drawText("Game tie", 100, 25, paint);
+        } else {
+            canvas.drawText("Winner is player " + p, 100, 25, paint);
+        }
+
     }
 
     @Override

@@ -23,10 +23,8 @@ public class GameBoardDisplay extends Activity {
 
         sfv = (MySurfaceView) this.findViewById(R.id.surface_view);
         Intent intent = this.getIntent();
-        int px = intent.getIntExtra("PX", 0);
-        int po = intent.getIntExtra("PO", 0);
-        int p1 = 0;
-        int p2 = 0;
+        int p1 = intent.getIntExtra("PX", 0);
+        int p2 = intent.getIntExtra("PO", 0);
         sfv.setPlayer(p1, p2);
         sfv.setAct(this);
     }

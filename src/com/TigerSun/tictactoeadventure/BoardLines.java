@@ -16,7 +16,7 @@ import com.TigerSun.tictactoeadventure.util.Position;
  * @date May 23, 2014 8:40:40 PM
  */
 public class BoardLines {
-    private static final float GAP_HOR_TOP_AHEAD = 80f;
+    private static final float GAP_HOR_TOP_AHEAD = 160f;
     private static final float GAP_HOR_TOP_BEHIND = 20f;
     private static final float GAP_HOR_BOTT_AHEAD = 20f;
     // private static final float GAP_HOR_BOTT_BEHIND = 80f;

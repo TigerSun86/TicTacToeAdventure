@@ -14,13 +14,14 @@ import com.TigerSun.tictactoeadventure.util.Position;
  *         email: sunx2013@my.fit.edu
  * @date Jun 6, 2014 2:12:37 PM
  */
-public class TttState extends GameState{
+public class TttState extends GameState {
     private final long[] board;
 
     public TttState() {
         // For convenient. Actually only use board[1] and board[2].
         this.board = new long[PM.P_2 + 1];
     }
+
     public TttState(TttState s) {
         // For convenient. Actually only use board[1] and board[2].
         this.board = new long[PM.P_2 + 1];
@@ -45,33 +46,72 @@ public class TttState extends GameState{
         final long mask = 1L << index;
         board[p] |= mask;
     }
-    
-    public int endTest(){
-        if (isFull()){
+
+    public int endTest () {
+        if (isFull()) {
             return PM.TIE;
         }
-        for (long route: winRoutes){
-            if (Long.bitCount(board[PM.P_1] & route) == 4){
+        for (long route : winRoutes) {
+            if (Long.bitCount(board[PM.P_1] & route) == 4) {
                 return PM.P_1;
-            } else if (Long.bitCount(board[PM.P_2] & route) == 4){
+            } else if (Long.bitCount(board[PM.P_2] & route) == 4) {
                 return PM.P_2;
-            } 
+            }
         }
         return PM.NOT_END;
     }
-    
-    public ArrayList<Object> getEmptyPostions(){
+
+    public ArrayList<Object> getEmptyPostions () {
         final ArrayList<Object> poss = new ArrayList<Object>();
         final long total = board[PM.P_1] | board[PM.P_2];
-        for (int i = 0; i < 64; i ++){
+        for (int i = 0; i < 64; i++) {
             final long mask = 1L << i;
-            if ((total & mask) == 0){ // Position is empty.
+            if ((total & mask) == 0) { // Position is empty.
                 poss.add(getPosition(i));
             }
         }
         return poss;
-    } 
-    
+    }
+
+    private static final double ATTACK_SCORE = 1.0;
+    private static final double DEFENSE_SCORE = -1.0;
+
+    public ArrayList<Double> getAttributs (final int p) {
+        final int op = (p == PM.P_1) ? PM.P_2 : PM.P_1;
+        final int[] pFea = new int[5]; // Do not use pFea[0]
+        final int[] oFea = new int[5]; // Do not use oFea[0]
+        for (long r : winRoutes) {
+            final long pr = board[p] & r;
+            final long or = board[op] & r;
+            if (pr != 0 && or == 0) {
+                final int pc = Long.bitCount(pr);
+                pFea[pc]++;
+            } else if (pr == 0 && or != 0) {
+                final int oc = Long.bitCount(or);
+                oFea[oc]++;
+            }
+        }
+        final ArrayList<Double> attrs = new ArrayList<Double>();
+        for (int i = 1; i < pFea.length; i++) {
+            attrs.add((double) pFea[i]); // Add my features.
+        }
+        for (int i = 1; i < oFea.length; i++) {
+            attrs.add((double) oFea[i]); // Add opponent's features.
+        }
+        // Attack turn. Here just get next player from the board, because the
+        // next player doesn't stored in GameState, and I don't want to change
+        // the structure.
+        final int p1c = Long.bitCount(board[PM.P_1]);
+        final int p2c = Long.bitCount(board[PM.P_2]);
+        final int nextP = (p1c == p2c) ? PM.P_1 : PM.P_2;
+        if (nextP == p) {
+            attrs.add(ATTACK_SCORE);
+        } else {
+            attrs.add(DEFENSE_SCORE);
+        }
+        return attrs;
+    }
+
     private boolean isFull () {
         final int count =
                 Long.bitCount(board[PM.P_1]) + Long.bitCount(board[PM.P_2]);
@@ -81,8 +121,8 @@ public class TttState extends GameState{
     private static int getBitIndex (int l, int r, int c) {
         return l * 16 + r * 4 + c;
     }
-    
-    private static Position getPosition (int index){
+
+    private static Position getPosition (int index) {
         final int l = index / 16;
         index %= 16;
         final int r = index / 4;
@@ -90,7 +130,7 @@ public class TttState extends GameState{
         final int c = index;
         return new Position(l, r, c);
     }
-    
+
     private static long[] winRoutes = {
             // Straight
             // level changes, other remain
@@ -146,8 +186,7 @@ public class TttState extends GameState{
             0xF000000000000000L,
             // Diagonal
             // level remains, others change
-            0x0000000000008421L, 
-            0x0000000084210000L,
+            0x0000000000008421L, 0x0000000084210000L,
             0x0000842100000000L,
             0x8421000000000000L,
             0x0000000000001248L,
@@ -155,26 +194,16 @@ public class TttState extends GameState{
             0x0000124800000000L,
             0x1248000000000000L,
             // row remains, others change
-            0x0008000400020001L, 
-            0x0080004000200010L, 
-            0x0800040002000100L,
-            0x8000400020001000L, 
-            0x0001000200040008L,
+            0x0008000400020001L, 0x0080004000200010L, 0x0800040002000100L,
+            0x8000400020001000L, 0x0001000200040008L,
             0x0010002000400080L,
             0x0100020004000800L,
             0x1000200040008000L,
             // column remains, others change
-            0x1000010000100001L, 
-            0x2000020000200002L, 
-            0x4000040000400004L,
-            0x8000080000800008L, 
-            0x0001001001001000L, 
-            0x0002002002002000L,
-            0x0004004004004000L, 
-            0x0008008008008000L,
+            0x1000010000100001L, 0x2000020000200002L, 0x4000040000400004L,
+            0x8000080000800008L, 0x0001001001001000L, 0x0002002002002000L,
+            0x0004004004004000L, 0x0008008008008000L,
             // All change
-            0x8000040000200001L, 
-            0x0001002004008000L, 
-            0x1000020000400008L,
+            0x8000040000200001L, 0x0001002004008000L, 0x1000020000400008L,
             0x1000020000400008L, };
 }
