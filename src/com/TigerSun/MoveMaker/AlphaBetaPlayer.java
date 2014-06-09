@@ -1,7 +1,7 @@
 package com.TigerSun.MoveMaker;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.PriorityQueue;
 
 import com.TigerSun.Game.GameAnalyser;
@@ -113,7 +113,7 @@ public class AlphaBetaPlayer implements MoveMaker {
                             Collections.reverseOrder());
         }
 
-        final HashSet<Object> sucs = analyser.getActions(gp, node.record);
+        final ArrayList<Object> sucs = analyser.getActions(gp, node.record);
         for (Object action : sucs) {
             final Record r = gp.executeAction(node.record, action);
             double utility = analyser.getUtility(gp, r, player);

@@ -6,14 +6,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
 import com.TigerSun.Game.GameRecorder;
 import com.TigerSun.Game.PM;
@@ -44,7 +42,9 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
     private static final Paint[] playerPaint;
     static {
         playerPaint = new Paint[PM.P_2 + 1];
-        playerPaint[0] = null; // Empty.
+        //playerPaint[0] = null; // Empty.
+        playerPaint[0] = new Paint();
+        playerPaint[0].setColor(Color.WHITE);
         playerPaint[1] = new Paint();
         playerPaint[1].setColor(Color.RED);
         playerPaint[1].setAntiAlias(true);
@@ -124,7 +124,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         Log.d(MODEL, "surfaceDestroyed");
     }
 
-    public void draw () {
+    public void draw (PerformanceSystem perform) {
         try {
             canvas = sfh.lockCanvas();
             if (canvas != null) {
@@ -148,6 +148,11 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
                         }
                     }
                 }
+                
+                if (perform.isEnd()) {
+                    showWin(perform.winner());
+                    Log.d(MODEL, "Player " + perform.winner() + " won");
+                }
             }
         } catch (Exception e) {
             Log.e(MODEL, "draw is Error!");
@@ -156,9 +161,16 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         }
     }
 
+    public void showWin (int p) {
+        Paint paint = new Paint(); 
+        paint.setColor(Color.WHITE); 
+        paint.setTextSize(20); 
+        canvas.drawText("Winner is player " + p, 100, 25, paint);
+    }
+
     @Override
     public void run () {
-        draw();
+        draw(perform);
         while (isRunning && !perform.isEnd()) {
             waitInput = perform.next();
             while (waitInput) {
@@ -169,14 +181,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
                 }
             }
 
-            draw();
-            if (perform.isEnd()) {
-                Looper.prepare();
-                Toast.makeText(activity.getApplicationContext(),
-                        "Player " + perform.winner() + " won",
-                        Toast.LENGTH_SHORT).show();
-                Log.d(MODEL, "Player " + perform.winner() + " won");
-            }
+            draw(perform);
             try {
                 Thread.sleep(100);
             } catch (Exception e) {

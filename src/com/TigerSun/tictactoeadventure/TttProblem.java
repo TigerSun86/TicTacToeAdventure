@@ -10,7 +10,6 @@ public class TttProblem extends GameProblem {
     public static final int MAX_LEVEL = 4;
     public static final int MAX_ROW = 4;
     public static final int MAX_COLUMN = 4;
-    public static final int WINCOUNT = 4;
 
     public TttProblem(final PM pm2) {
         super(pm2);

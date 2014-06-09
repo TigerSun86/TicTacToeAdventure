@@ -1,7 +1,10 @@
 package com.TigerSun.tictactoeadventure;
 
+import java.util.ArrayList;
+
 import com.TigerSun.Game.GameState;
 import com.TigerSun.Game.PM;
+import com.TigerSun.tictactoeadventure.util.Position;
 
 /**
  * FileName: TttState.java
@@ -57,6 +60,18 @@ public class TttState extends GameState{
         return PM.NOT_END;
     }
     
+    public ArrayList<Object> getEmptyPostions(){
+        final ArrayList<Object> poss = new ArrayList<Object>();
+        final long total = board[PM.P_1] | board[PM.P_2];
+        for (int i = 0; i < 64; i ++){
+            final long mask = 1L << i;
+            if ((total & mask) == 0){ // Position is empty.
+                poss.add(getPosition(i));
+            }
+        }
+        return poss;
+    } 
+    
     private boolean isFull () {
         final int count =
                 Long.bitCount(board[PM.P_1]) + Long.bitCount(board[PM.P_2]);
@@ -66,7 +81,16 @@ public class TttState extends GameState{
     private static int getBitIndex (int l, int r, int c) {
         return l * 16 + r * 4 + c;
     }
-
+    
+    private static Position getPosition (int index){
+        final int l = index / 16;
+        index %= 16;
+        final int r = index / 4;
+        index %= 4;
+        final int c = index;
+        return new Position(l, r, c);
+    }
+    
     private static long[] winRoutes = {
             // Straight
             // level changes, other remain
