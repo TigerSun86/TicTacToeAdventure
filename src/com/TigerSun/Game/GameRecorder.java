@@ -3,8 +3,12 @@ package com.TigerSun.Game;
 import java.util.ArrayList;
 
 public class GameRecorder {
-    protected final ArrayList<Record> history;
-
+    public final ArrayList<Record> history;
+    
+    public GameRecorder() {
+        history = new ArrayList<Record>();
+    }
+    
     public GameRecorder(final Record initRecord) {
         history = new ArrayList<Record>();
         history.add(initRecord);
@@ -26,7 +30,7 @@ public class GameRecorder {
     /**
      * Get last record.
      */
-    public Record getRecord () {
+    public Record getLastRecord () {
         return getRecord(history.size() - 1);
     }
 
@@ -43,7 +47,28 @@ public class GameRecorder {
         }
         return -1;
     }
-
+    
+    /**
+     * Get previous index of record with the specified player, or -1 if there is no
+     * such index.
+     * Search from the index, inclusive.
+     */
+    public int previousIndexOf (final int player, final int index) {
+        final int index2;
+        if (index >= history.size()) {
+            index2 = history.size()-1;
+        } else {
+            index2 = index;
+        }
+        
+        for (int i = index2; i >= 0; i--) {
+            if (history.get(i).player == player) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
     /**
      * Add record at the index, and remove all existing records after it.
      */

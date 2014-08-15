@@ -12,4 +12,5 @@ import java.util.ArrayList;
  */
 public interface Hypothesis {
     public double predict (final ArrayList<Double> attrs) ;
+    public void updateH (final ArrayList<Double> attrs, final double vTrain);
 }

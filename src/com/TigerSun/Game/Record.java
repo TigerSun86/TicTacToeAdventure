@@ -15,4 +15,10 @@ public class Record {
         this.nextPlayer = nextPlayer2;
         this.winner = winner2;
     }
+
+    @Override
+    public String toString () {
+        return state.toString() + " " + action.toString() + " " + player + " "
+                + nextPlayer + " " + winner;
+    }
 }

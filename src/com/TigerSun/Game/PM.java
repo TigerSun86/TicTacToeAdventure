@@ -15,6 +15,7 @@ public class PM { /* Player Manager */
     
     public static final int T_HUMAN = 0;
     public static final int T_AI = 1; 
+    public static final int T_ML = 2; 
     
     private final HashMap<Integer, MoveMaker> players;
     private final HashMap<Integer, Integer> playerType;

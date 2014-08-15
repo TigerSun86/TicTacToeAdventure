@@ -1,6 +1,7 @@
 package com.TigerSun.tictactoeadventure;
 
-import android.app.Activity;
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,7 +15,10 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
 import com.TigerSun.Game.GameRecorder;
+import com.TigerSun.Game.Hypothesis;
+import com.TigerSun.Game.Learner;
 import com.TigerSun.Game.LmsHypo;
+import com.TigerSun.Game.NeuralNetwork;
 import com.TigerSun.Game.PM;
 import com.TigerSun.Game.PerformanceSystem;
 import com.TigerSun.Game.Record;
@@ -41,12 +45,13 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         linePaint.setStrokeWidth(2);
         linePaint.setAntiAlias(true);
     }
+    private static final int TIPS_COLOR = 0;
     private static final Paint[] playerPaint;
     static {
         playerPaint = new Paint[PM.P_2 + 1];
-        //playerPaint[0] = null; // Empty.
-        playerPaint[0] = new Paint();
-        playerPaint[0].setColor(Color.WHITE);
+        playerPaint[0] = new Paint(); // for tips.
+        playerPaint[0].setColor(Color.GREEN);
+        playerPaint[0].setAlpha(100);
         playerPaint[1] = new Paint();
         playerPaint[1].setColor(Color.RED);
         playerPaint[1].setAntiAlias(true);
@@ -54,8 +59,8 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         playerPaint[2].setColor(Color.YELLOW);
         playerPaint[2].setAntiAlias(true);
     }
-    private static final Record INIT_GAME = new Record(new TttState(), null,
-            PM.P_INVALID, PM.P_1, PM.NOT_END);
+    private static final Record INIT_GAME = new Record(new TttState(),
+            new Position(-1, -1, -1), PM.P_INVALID, PM.P_1, PM.NOT_END);
 
     private Thread th;
     private SurfaceHolder sfh;
@@ -63,10 +68,14 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
     private boolean isRunning;
     private BoardLines boardLines;
     private PerformanceSystem perform;
+    private AlphaBetaPlayer learntAi = null;
+
+    private int p1Type;
+    private int p1Depth;
+    private int p2Type;
+    private int p2Depth;
 
     private boolean waitInput = false;
-
-    private Activity activity;
 
     public MySurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -79,32 +88,28 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         Log.e(MODEL, "MySurfaceView Constructor");
     }
 
-    public void setPlayer (int p1, int p2) {
-        final MoveMaker player1;
+    public void setPlayer (int p1, int p2, int d1, int d2) {
         if (p1 == PM.T_HUMAN) {
-            player1 = null;
+            p1Type = PM.T_HUMAN;
+            p1Depth = 0;
+        } else if (p1 == 4) { // custom
+            p1Type = PM.T_ML;
+            p1Depth = d1;
         } else {
-            final TttAnalyser analyser1 = new TttAnalyser(LmsHypo.H_SAMPLE);
-            player1 = new AlphaBetaPlayer(analyser1, p1);
+            p1Type = PM.T_AI;
+            p1Depth = p1;
         }
-        final MoveMaker player2;
+
         if (p2 == PM.T_HUMAN) {
-            player2 = null;
+            p2Type = PM.T_HUMAN;
+            p2Depth = 0;
+        } else if (p2 == 4) { // custom
+            p2Type = PM.T_ML;
+            p2Depth = d2;
         } else {
-            final TttAnalyser analyser1 = new TttAnalyser(LmsHypo.H_SAMPLE);
-            player2 = new AlphaBetaPlayer(analyser1, p2);
+            p2Type = PM.T_AI;
+            p2Depth = p2;
         }
-
-        final PM pm = new PM();
-        pm.setPlayer(PM.P_1, player1, p1);
-        pm.setPlayer(PM.P_2, player2, p2);
-        final TttProblem prob = new TttProblem(pm);
-        final GameRecorder initGr = new GameRecorder(INIT_GAME);
-        perform = new PerformanceSystem(prob, initGr);
-    }
-
-    public void setAct (Activity act) {
-        this.activity = act;
     }
 
     @Override
@@ -129,35 +134,66 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         Log.d(MODEL, "surfaceDestroyed");
     }
 
-    public void draw (PerformanceSystem perform) {
+    private void initializeGame () {
+        initMlAi(1);
+
+        final MoveMaker player1 = initPlayer(p1Type, p1Depth);
+        final MoveMaker player2 = initPlayer(p2Type, p2Depth);
+
+        final PM pm = new PM();
+        pm.setPlayer(PM.P_1, player1, p1Type);
+        pm.setPlayer(PM.P_2, player2, p2Type);
+        final TttProblem prob = new TttProblem(pm);
+        final GameRecorder initGr = new GameRecorder(INIT_GAME);
+        perform = new PerformanceSystem(prob, initGr);
+    }
+
+    private void initMlAi (final int depth) {
+        Hypothesis h = RecordWriter.readAI();
+        if (h == null) {
+            h = new LmsHypo(TttState.ATTR_COUNT);
+        }
+        final TttAnalyser analyser = new TttAnalyser(h);
+        learntAi = new AlphaBetaPlayer(analyser, depth);
+    }
+
+    private MoveMaker initPlayer (final int type, final int depth) {
+        final MoveMaker player;
+        if (type == PM.T_HUMAN) {
+            player = null;
+        } else if (type == PM.T_ML) { // machine learning ai.
+            player = learntAi;
+        } else {
+            final TttAnalyser analyser = new TttAnalyser(LmsHypo.H_SAMPLE);
+            player = new AlphaBetaPlayer(analyser, depth);
+        }
+        return player;
+    }
+
+    private void saveGame () {
+        if (perform.isEnd()) {
+            if (perform.winner() == PM.TIE) {
+                drawMsg("Game tie");
+            } else {
+                drawMsg("Winner is player " + perform.winner());
+            }
+            Log.d(MODEL, "Player " + perform.winner() + " won");
+
+            // Let machine learning AI learn this game.
+            Learner.learnOneGame(perform.prob.pm, perform.gr, learntAi.analyser);
+            // Save current machine learning AI to file.
+            RecordWriter.writeAI(learntAi.analyser.h);
+            // Save this game record.
+            RecordWriter.writeRecord(perform.gr);
+        }
+    }
+
+    public void draw () {
         try {
             canvas = sfh.lockCanvas();
             if (canvas != null) {
-                for (Line line : boardLines.getLineSet()) {
-                    canvas.drawLine(line.startX, line.startY, line.stopX,
-                            line.stopY, linePaint);
-                }
-                final TttState tttState = (TttState) perform.getLastState();
-
-                for (int l = 0; l < 4; l++) {
-                    for (int r = 0; r < 4; r++) {
-                        for (int c = 0; c < 4; c++) {
-                            final int player = tttState.get(l, r, c);
-                            if (player != PM.P_EMPTY) {
-                                final PointF p =
-                                        boardLines.getPointOfPiece(l, r, c);
-                                canvas.drawCircle(p.x, p.y,
-                                        boardLines.getRadius(),
-                                        playerPaint[player]);
-                            }
-                        }
-                    }
-                }
-                
-                if (perform.isEnd()) {
-                    showWin(perform.winner());
-                    Log.d(MODEL, "Player " + perform.winner() + " won");
-                }
+                drawBoard();
+                drawPieces();
             }
         } catch (Exception e) {
             Log.e(MODEL, "draw is Error!");
@@ -166,23 +202,85 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         }
     }
 
-    public void showWin (int p) {
-        Paint paint = new Paint(); 
-        paint.setColor(Color.WHITE); 
-        paint.setTextSize(20); 
-        if (p == PM.TIE){
-            canvas.drawText("Game tie", 100, 25, paint);
-        } else {
-            canvas.drawText("Winner is player " + p, 100, 25, paint);
+    private void drawBoard () {
+        canvas.drawColor(Color.BLACK); // Clear screen.
+        for (Line line : boardLines.getLineSet()) {
+            canvas.drawLine(line.startX, line.startY, line.stopX, line.stopY,
+                    linePaint);
         }
+    }
 
+    private void drawPieces () {
+        final TttState tttState = (TttState) perform.getLastState();
+
+        for (int l = 0; l < 4; l++) {
+            for (int r = 0; r < 4; r++) {
+                for (int c = 0; c < 4; c++) {
+                    final int player = tttState.get(l, r, c);
+                    if (player != PM.P_EMPTY) {
+                        final PointF p = boardLines.getPointOfPiece(l, r, c);
+                        canvas.drawCircle(p.x, p.y, boardLines.getRadius(),
+                                playerPaint[player]);
+                    }
+                }
+            }
+        }
+    }
+
+    private void drawMsg (String s) {
+        try {
+            canvas = sfh.lockCanvas();
+            if (canvas != null) {
+                drawBoard();
+                drawPieces();
+                Paint paint = new Paint();
+                paint.setColor(Color.WHITE);
+                paint.setTextSize(20);
+                canvas.drawText(s, 100, 25, paint);
+            }
+        } catch (Exception e) {
+            Log.e(MODEL, "draw is Error!");
+        } finally {
+            if (canvas != null) sfh.unlockCanvasAndPost(canvas);
+        }
+    }
+
+    private Position getTips () {
+        final Record lastRecord = perform.gr.getLastRecord();
+        final MoveMaker moveMaker = learntAi;
+        final Object action = moveMaker.makeMove(perform.prob, lastRecord);
+        return (Position) action;
+    }
+
+    private void drawTips (Position t) {
+        try {
+            canvas = sfh.lockCanvas();
+            if (canvas != null) {
+                drawBoard();
+                drawPieces();
+                final PointF p =
+                        boardLines.getPointOfPiece(t.level, t.row, t.column);
+                canvas.drawCircle(p.x, p.y, boardLines.getRadius(),
+                        playerPaint[TIPS_COLOR]);
+            }
+        } catch (Exception e) {
+            Log.e(MODEL, "draw is Error!");
+        } finally {
+            if (canvas != null) sfh.unlockCanvasAndPost(canvas);
+        }
     }
 
     @Override
     public void run () {
-        draw(perform);
+        draw();
+        initializeGame();
         while (isRunning && !perform.isEnd()) {
             waitInput = perform.next();
+            if (waitInput) { // Give tips when human's turn.
+                Position t = getTips();
+                drawTips(t);
+            }
+
             while (waitInput) {
                 try {
                     Thread.sleep(100);
@@ -191,13 +289,14 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
                 }
             }
 
-            draw(perform);
+            draw();
             try {
                 Thread.sleep(100);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        saveGame();
     }
 
     @Override
@@ -221,5 +320,76 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
             }
         }
         return true;
+    }
+
+    private void trainAI (int times) {
+        final PM pm = new PM();
+        pm.setPlayer(PM.P_1, null, PM.T_AI);
+        pm.setPlayer(PM.P_2, null, PM.T_AI);
+        Learner.learn(pm, learntAi.analyser, times);
+        Log.d(MODEL, learntAi.analyser.h.toString());
+    }
+
+    private AlphaBetaPlayer trainAIOfNn (int depth) {
+        final PM pm = new PM();
+        pm.setPlayer(PM.P_1, null, PM.T_AI);
+        pm.setPlayer(PM.P_2, null, PM.T_AI);
+        final ArrayList<Integer> nHidden = new ArrayList<Integer>();
+        nHidden.add(9);
+        final TttAnalyser analyser =
+                new TttAnalyser(new NeuralNetwork(9, nHidden, true, 1, false,
+                        0.1, 0.1));
+
+        // Learner2.learn(pm, analyser);
+
+        Log.d(MODEL, analyser.h.toString());
+        return new AlphaBetaPlayer(analyser, 1);
+    }
+
+    private int count = 0;
+    private int mlplayer = PM.P_1;
+
+    private void loopTest () {
+
+        if (perform.isEnd()) {
+            if (perform.winner() == PM.TIE) {
+                drawMsg("Game tie");
+            } else {
+                drawMsg("Winner is player " + perform.winner());
+            }
+            Log.d(MODEL, "Player " + perform.winner() + " won");
+            String winner;
+            if (perform.winner() == PM.TIE) {
+                winner = "T";
+            } else if (perform.winner() == mlplayer) {
+                winner = "M";
+            } else {
+                winner = "A";
+            }
+            //RecordWriter.stringWrite(winner);
+
+            final AlphaBetaPlayer player1 =
+                    ((AlphaBetaPlayer) perform.prob.pm.getMoveMaker(PM.P_1));
+            final AlphaBetaPlayer player2 =
+                    ((AlphaBetaPlayer) perform.prob.pm.getMoveMaker(PM.P_2));
+
+            AlphaBetaPlayer mlp = (mlplayer == PM.P_1 ? player1 : player2);
+            Learner.learnOneGame(perform.prob.pm, perform.gr, mlp.analyser);
+
+            perform.prob.pm.setPlayer(PM.P_1, player2, PM.T_AI);
+            perform.prob.pm.setPlayer(PM.P_2, player1, PM.T_AI);
+
+            mlplayer = (mlplayer == PM.P_1 ? PM.P_2 : PM.P_1);
+
+            // RecordWriter.stringWrite3(((NeuralNetwork)mlp.analyser.h).getLayer(1).toString());
+            //RecordWriter.stringWrite3(mlp.analyser.h.toString());
+            count++;
+            if (count < 1000) {
+                final GameRecorder initGr = new GameRecorder(INIT_GAME);
+                perform.gr = initGr;
+            }
+
+        }
+
     }
 }

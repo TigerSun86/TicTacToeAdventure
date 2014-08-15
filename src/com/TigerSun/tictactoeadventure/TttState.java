@@ -15,20 +15,34 @@ import com.TigerSun.tictactoeadventure.util.Position;
  * @date Jun 6, 2014 2:12:37 PM
  */
 public class TttState extends GameState {
+    public static final int ATTR_COUNT = 9;
+    
     private final long[] board;
 
     public TttState() {
         // For convenient. Actually only use board[1] and board[2].
         this.board = new long[PM.P_2 + 1];
     }
-
+    
+    public TttState(final long xb, final long ob) {
+        // For convenient. Actually only use board[1] and board[2].
+        this.board = new long[PM.P_2 + 1];
+        this.board[PM.P_1]  = xb;
+        this.board[PM.P_2]  = ob;
+    }
+    
     public TttState(TttState s) {
         // For convenient. Actually only use board[1] and board[2].
         this.board = new long[PM.P_2 + 1];
         this.board[PM.P_1] = s.board[PM.P_1];
         this.board[PM.P_2] = s.board[PM.P_2];
     }
-
+    
+    @Override
+    public String toString(){
+        return board[PM.P_1] +" "+board[PM.P_2];
+    }
+    
     public int get (int l, int r, int c) {
         final int index = getBitIndex(l, r, c);
         final long mask = 1L << index;
@@ -109,6 +123,16 @@ public class TttState extends GameState {
         } else {
             attrs.add(DEFENSE_SCORE);
         }
+        
+        // Make all attributes to 0 - 1.
+        attrs.set(0, attrs.get(0)/24);
+        attrs.set(1, attrs.get(1)/10);
+        attrs.set(2, attrs.get(2)/2);
+        attrs.set(3, attrs.get(3)/1);
+        attrs.set(4, attrs.get(4)/23);
+        attrs.set(5, attrs.get(5)/9);
+        attrs.set(6, attrs.get(6)/2);
+        attrs.set(7, attrs.get(7)/1);
         return attrs;
     }
 
@@ -204,6 +228,6 @@ public class TttState extends GameState {
             0x8000080000800008L, 0x0001001001001000L, 0x0002002002002000L,
             0x0004004004004000L, 0x0008008008008000L,
             // All change
-            0x8000040000200001L, 0x0001002004008000L, 0x1000020000400008L,
+            0x8000040000200001L, 0x0001002004008000L, 0x0008004002001000L,
             0x1000020000400008L, };
 }

@@ -71,8 +71,7 @@
                     android:id="@+id/xCustom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/customDRB"
-                    android:visibility="invisible" />
+                    android:text="@string/customDRB" />
 
             </RadioGroup>
 
@@ -82,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:inputType="number"
-                android:visibility="invisible"  />
+                 />
         </LinearLayout>
 
         <LinearLayout
@@ -141,8 +140,7 @@
                     android:id="@+id/oCustom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/customDRB"
-                    android:visibility="invisible"  />
+                    android:text="@string/customDRB" />
             </RadioGroup>
 
             <EditText
@@ -151,7 +149,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:inputType="number"
-                android:visibility="invisible"  />
+                  />
         </LinearLayout>
     </TableRow>
 

@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 
 public class MainActivity extends Activity {
@@ -45,8 +46,10 @@ public class MainActivity extends Activity {
                 p1 = 2;
             } else if (p1RG.getCheckedRadioButtonId() == R.id.xNightmare) {
                 p1 = 3;
+            } else if (p1RG.getCheckedRadioButtonId() == R.id.xCustom) {
+                p1 = 4;
             } else {
-                p1 = 0;
+                p1 = 0; // Human
             }
             int p2;
             if (p2RG.getCheckedRadioButtonId() == R.id.oEasy) {
@@ -55,13 +58,26 @@ public class MainActivity extends Activity {
                 p2 = 2;
             } else if (p2RG.getCheckedRadioButtonId() == R.id.oNightmare) {
                 p2 = 3;
+            } else if (p2RG.getCheckedRadioButtonId() == R.id.oCustom) {
+                p2 = 4;
             } else {
                 p2 = 0;
             }
 
             intent.putExtra("PX", p1);
             intent.putExtra("PO", p2);
+            intent.putExtra("XDEPTH", getDepth(((EditText) findViewById(R.id.xCustomDifficultyET)).getText().toString()));
+            intent.putExtra("ODEPTH", getDepth(((EditText) findViewById(R.id.oCustomDifficultyET)).getText().toString()));
             startActivity(intent);
+        }
+        private int getDepth(String s){
+            int d;
+            try{
+                d= Integer.valueOf(s);
+            }catch(NumberFormatException e){
+                d = 1;
+            }
+            return d;
         }
     };
 }

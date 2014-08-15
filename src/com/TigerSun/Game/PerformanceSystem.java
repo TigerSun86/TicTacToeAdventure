@@ -18,7 +18,7 @@ public class PerformanceSystem {
         if (getCurPlayerType() == PM.T_HUMAN) {
             return true;
         } else {
-            final Record lastRecord = gr.getRecord();
+            final Record lastRecord = gr.getLastRecord();
             final int player = lastRecord.nextPlayer;
             final MoveMaker moveMaker = prob.pm.getMoveMaker(player);
             final Object action = moveMaker.makeMove(prob, lastRecord);
@@ -30,31 +30,31 @@ public class PerformanceSystem {
     }
 
     public GameState getLastState () {
-        return gr.getRecord().state;
+        return gr.getLastRecord().state;
     }
 
     public int getCurPlayerType () {
-        final Record lastRecord = gr.getRecord();
+        final Record lastRecord = gr.getLastRecord();
         final int player = lastRecord.nextPlayer;
         return prob.pm.getType(player);
     }
 
     public void makeHumMove (Object action) {
-        final Record lastRecord = gr.getRecord();
+        final Record lastRecord = gr.getLastRecord();
         final Record newRecord = prob.executeAction(lastRecord, action);
         gr.addRecord(newRecord);
     }
 
     public boolean isLegalMove (Object action) {
-        final Record lastRecord = gr.getRecord();
+        final Record lastRecord = gr.getLastRecord();
         return prob.isLegalMove(lastRecord, action);
     }
 
     public boolean isEnd () {
-        return gr.getRecord().winner != PM.NOT_END;
+        return gr.getLastRecord().winner != PM.NOT_END;
     }
 
     public int winner () {
-        return gr.getRecord().winner;
+        return gr.getLastRecord().winner;
     }
 }

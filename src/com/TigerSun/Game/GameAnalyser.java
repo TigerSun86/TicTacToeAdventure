@@ -3,7 +3,7 @@ package com.TigerSun.Game;
 import java.util.ArrayList;
 
 public abstract class GameAnalyser {
-    private Hypothesis h;
+    public Hypothesis h;
 
     public GameAnalyser(final Hypothesis h2) {
         this.h = h2;
@@ -34,7 +34,7 @@ public abstract class GameAnalyser {
         this.h = h2;
     }
 
-    public double getUtility (final GameProblem gp, final Record record,
+    public double getUtility (final Record record,
             final int player) {
         if (record.winner != PM.NOT_END) {
             return endScore(player, record.winner);
@@ -42,5 +42,9 @@ public abstract class GameAnalyser {
             final ArrayList<Double> attrs = getAttributes(record.state, player);
             return h.predict(attrs);
         }
+    }
+    @Override
+    public String toString(){
+        return h.toString();
     }
 }

@@ -3,8 +3,9 @@ package com.TigerSun.Game;
 import java.util.ArrayList;
 
 public class LmsHypo implements Hypothesis {
-    public static final Hypothesis H_SAMPLE = new LmsHypo(1.0, 1.0, 5.0, 25.0, 100.0, -1.0, -5.0, -25.0, -100.0, 50.0); 
-    
+    public static final Hypothesis H_SAMPLE = new LmsHypo(1.0, 1.0, 5.0, 50.0,
+            100.0, -1.0, -5.0, -50.0, -100.0, 50.0);
+
     private static final double UPDATE_RATE = 0.1;
     private static final double DEFUALT_WEIGHT = 1.0;
     private static final double DEFUALT_ATTR = 1.0;
@@ -31,7 +32,11 @@ public class LmsHypo implements Hypothesis {
         weights = new ArrayList<Double>();
         weights.addAll(anotherH.weights);
     }
-    
+
+    public LmsHypo(final ArrayList<Double> weights2) {
+        this.weights = weights2;
+    }
+
     @Override
     public double predict (final ArrayList<Double> attrs) {
         assert (attrs.size() + 1 == weights.size());
@@ -44,7 +49,7 @@ public class LmsHypo implements Hypothesis {
 
         return sum;
     }
-/*
+
     public void updateH (final ArrayList<Double> attrs, final double vTrain) {
         assert (attrs.size() + 1 == weights.size());
 
@@ -61,13 +66,15 @@ public class LmsHypo implements Hypothesis {
             weights.set(i + 1, newW2);
         }
     }
-*/
+
     @Override
     public String toString () {
-        final StringBuffer sb = new StringBuffer();
-        sb.append("Hypothesis: ");
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < weights.size(); i++) {
-            sb.append(String.format("w%d=%f, ", i, weights.get(i)));
+            sb.append(Double.toString(weights.get(i)));
+            if (i != weights.size() - 1) {
+                sb.append(" ");
+            }
         }
         return sb.toString();
     }

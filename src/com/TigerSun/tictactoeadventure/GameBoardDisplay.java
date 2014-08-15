@@ -25,7 +25,8 @@ public class GameBoardDisplay extends Activity {
         Intent intent = this.getIntent();
         int p1 = intent.getIntExtra("PX", 0);
         int p2 = intent.getIntExtra("PO", 0);
-        sfv.setPlayer(p1, p2);
-        sfv.setAct(this);
+        int d1 = intent.getIntExtra("XDEPTH", 0);
+        int d2 = intent.getIntExtra("ODEPTH", 0);
+        sfv.setPlayer(p1, p2, d1, d2);
     }
 }

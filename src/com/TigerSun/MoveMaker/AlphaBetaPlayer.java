@@ -13,12 +13,10 @@ public class AlphaBetaPlayer implements MoveMaker {
     private static final boolean ORDER_ASCENDING = true;
     private static final boolean ORDER_DESCENDING = false;
     private static final int CAPA = 10;
-    private static final double RANDOM_FACTOR = 0.00001;
 
-    private final GameAnalyser analyser;
+    public final GameAnalyser analyser;
     private final int depth;
     private int player;
-    private boolean randomAmongBests = true;
     
     public AlphaBetaPlayer(final GameAnalyser analyser2, final int depth2) {
         this.analyser = analyser2;
@@ -49,10 +47,6 @@ public class AlphaBetaPlayer implements MoveMaker {
         return best.record.action;
     }
     
-    public void setRandom(final boolean randomAmongBests2){
-        this.randomAmongBests = randomAmongBests2;
-    }
-
     private double minValue (final GameProblem gp, final MiniMaxNode node,
             final double a, final double b) {
         if (terminalTest(gp, node)) {
@@ -116,10 +110,7 @@ public class AlphaBetaPlayer implements MoveMaker {
         final ArrayList<Object> sucs = analyser.getActions(gp, node.record);
         for (Object action : sucs) {
             final Record r = gp.executeAction(node.record, action);
-            double utility = analyser.getUtility(gp, r, player);
-            if (randomAmongBests){
-                utility += RANDOM_FACTOR * Math.random();
-            }
+            final double utility = analyser.getUtility(r, player);
             final MiniMaxNode child =
                     new MiniMaxNode(r, node.depth + 1, utility);
             frontier.add(child);

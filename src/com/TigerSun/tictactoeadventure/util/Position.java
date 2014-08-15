@@ -13,8 +13,6 @@ public class Position {
 
     @Override
     public String toString () {
-        return String.format("level: %d, row: %d, column: %d ", level, row,
-                column);
+        return level +" "+row +" "+ column;
     }
-
 }
