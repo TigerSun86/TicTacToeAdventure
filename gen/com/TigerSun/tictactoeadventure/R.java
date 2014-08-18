@@ -36,7 +36,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class id {
         public static final int action_settings=0x7f090018;
-        public static final int fullscreen_content_controls=0x7f090001;
         public static final int mainScreenTR=0x7f090002;
         public static final int oCustom=0x7f090015;
         public static final int oCustomDifficultyET=0x7f090016;
@@ -46,12 +45,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int oHuman=0x7f090010;
         public static final int oNightmare=0x7f090013;
         public static final int oNormal=0x7f090012;
+        public static final int okButton=0x7f090000;
         public static final int playerOLL=0x7f09000d;
         public static final int playerOTV=0x7f09000e;
         public static final int playerXLL=0x7f090003;
         public static final int playerXTV=0x7f090004;
         public static final int startBT=0x7f090017;
-        public static final int surface_view=0x7f090000;
+        public static final int surface_view=0x7f090001;
         public static final int xCustom=0x7f09000b;
         public static final int xCustomDifficultyET=0x7f09000c;
         public static final int xDifficultyRB=0x7f090005;
@@ -69,6 +69,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int main=0x7f080000;
     }
     public static final class string {
+        public static final int OKButton=0x7f06000f;
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
         public static final int customDRB=0x7f06000a;

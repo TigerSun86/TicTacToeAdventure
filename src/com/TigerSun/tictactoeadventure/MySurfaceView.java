@@ -7,12 +7,15 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import android.view.View;
 
 import com.TigerSun.Game.GameRecorder;
 import com.TigerSun.Game.Hypothesis;
@@ -45,20 +48,25 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         linePaint.setStrokeWidth(2);
         linePaint.setAntiAlias(true);
     }
-    private static final int TIPS_COLOR = 0;
+    private static final int SEL_PAINT_INDEX = 0;
+    private static final int TIPS_PAINT_INDEX = 3;
     private static final Paint[] playerPaint;
     static {
-        playerPaint = new Paint[PM.P_2 + 1];
-        playerPaint[0] = new Paint(); // for tips.
-        playerPaint[0].setColor(Color.GREEN);
-        playerPaint[0].setAlpha(100);
+        playerPaint = new Paint[PM.P_2 + 1 + 1];
+        playerPaint[0] = new Paint(); // for selected.
+        playerPaint[0].setColor(Color.RED);
+        playerPaint[0].setStyle(Paint.Style.STROKE);
         playerPaint[1] = new Paint();
         playerPaint[1].setColor(Color.RED);
         playerPaint[1].setAntiAlias(true);
         playerPaint[2] = new Paint();
         playerPaint[2].setColor(Color.YELLOW);
         playerPaint[2].setAntiAlias(true);
+        playerPaint[3] = new Paint(); // for tips.
+        playerPaint[3].setColor(Color.GREEN);
+        playerPaint[3].setStyle(Paint.Style.STROKE);
     }
+
     private static final Record INIT_GAME = new Record(new TttState(),
             new Position(-1, -1, -1), PM.P_INVALID, PM.P_1, PM.NOT_END);
 
@@ -70,6 +78,9 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
     private PerformanceSystem perform;
     private AlphaBetaPlayer learntAi = null;
 
+    private Position recommendedPos = null;
+    private Position selectedPos = null;
+
     private int p1Type;
     private int p1Depth;
     private int p2Type;
@@ -77,9 +88,11 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 
     private boolean waitInput = false;
 
+    public Handler handler = null;
+    
     public MySurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.setKeepScreenOn(true);
+        this.setKeepScreenOn(false);
         this.setLongClickable(true);
 
         sfh = this.getHolder();
@@ -194,6 +207,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
             if (canvas != null) {
                 drawBoard();
                 drawPieces();
+                drawSelectedAndRecommended();
             }
         } catch (Exception e) {
             Log.e(MODEL, "draw is Error!");
@@ -210,6 +224,22 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         }
     }
 
+    private void drawOnePiece (int l, int r, int c, final Paint paint) {
+        final PointF p = boardLines.getPointOfPiece(l, r, c);
+        canvas.drawCircle(p.x, p.y, boardLines.getRadius(), paint);
+    }
+
+    private void drawSelectedAndRecommended () {
+        if (selectedPos != null) {
+            drawOnePiece(selectedPos.level, selectedPos.row,
+                    selectedPos.column, playerPaint[SEL_PAINT_INDEX]);
+        }
+        if (recommendedPos != null) {
+            drawOnePiece(recommendedPos.level, recommendedPos.row,
+                    recommendedPos.column, playerPaint[TIPS_PAINT_INDEX]);
+        }
+    }
+
     private void drawPieces () {
         final TttState tttState = (TttState) perform.getLastState();
 
@@ -218,9 +248,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
                 for (int c = 0; c < 4; c++) {
                     final int player = tttState.get(l, r, c);
                     if (player != PM.P_EMPTY) {
-                        final PointF p = boardLines.getPointOfPiece(l, r, c);
-                        canvas.drawCircle(p.x, p.y, boardLines.getRadius(),
-                                playerPaint[player]);
+                        drawOnePiece(l, r, c, playerPaint[player]);
                     }
                 }
             }
@@ -245,31 +273,6 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         }
     }
 
-    private Position getTips () {
-        final Record lastRecord = perform.gr.getLastRecord();
-        final MoveMaker moveMaker = learntAi;
-        final Object action = moveMaker.makeMove(perform.prob, lastRecord);
-        return (Position) action;
-    }
-
-    private void drawTips (Position t) {
-        try {
-            canvas = sfh.lockCanvas();
-            if (canvas != null) {
-                drawBoard();
-                drawPieces();
-                final PointF p =
-                        boardLines.getPointOfPiece(t.level, t.row, t.column);
-                canvas.drawCircle(p.x, p.y, boardLines.getRadius(),
-                        playerPaint[TIPS_COLOR]);
-            }
-        } catch (Exception e) {
-            Log.e(MODEL, "draw is Error!");
-        } finally {
-            if (canvas != null) sfh.unlockCanvasAndPost(canvas);
-        }
-    }
-
     @Override
     public void run () {
         draw();
@@ -277,8 +280,8 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         while (isRunning && !perform.isEnd()) {
             waitInput = perform.next();
             if (waitInput) { // Give tips when human's turn.
-                Position t = getTips();
-                drawTips(t);
+                getTips();
+                draw();
             }
 
             while (waitInput) {
@@ -313,13 +316,48 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
                 // Check whether this position has been occupied.
                 if (perform.isLegalMove(pos)) {
                     // If empty, make a move in this position.
-                    perform.makeHumMove(pos);
-                    waitInput = false;
-                    Log.d(MODEL, "Humman move " + pos);
+                    selectedPos = pos;
+                    setOKBTEnabled(true);
+                    draw();
                 }
             }
         }
         return true;
+    }
+
+    private void getTips () {
+        final Record lastRecord = perform.gr.getLastRecord();
+        final MoveMaker moveMaker = learntAi;
+        final Position action =
+                (Position) moveMaker.makeMove(perform.prob, lastRecord);
+        recommendedPos = action;
+        // Human's default selected position is the one recommended by
+        // tips.
+        selectedPos = action;
+
+        setOKBTEnabled(true);
+    }
+
+    public OnClickListener okBTListener = new OnClickListener() {
+        @Override
+        public void onClick (View v) {
+            assert selectedPos != null;
+
+            perform.makeHumMove(selectedPos);
+            waitInput = false;
+            Log.d(MODEL, "Humman move " + selectedPos);
+
+            recommendedPos = null;
+            selectedPos = null;
+
+            setOKBTEnabled(false);
+        }
+    };
+
+    private void setOKBTEnabled (boolean enabled) {
+        Message message = Message.obtain();
+        message.obj = enabled;
+        handler.sendMessage(message);
     }
 
     private void trainAI (int times) {
@@ -366,7 +404,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
             } else {
                 winner = "A";
             }
-            //RecordWriter.stringWrite(winner);
+            // RecordWriter.stringWrite(winner);
 
             final AlphaBetaPlayer player1 =
                     ((AlphaBetaPlayer) perform.prob.pm.getMoveMaker(PM.P_1));
@@ -382,7 +420,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
             mlplayer = (mlplayer == PM.P_1 ? PM.P_2 : PM.P_1);
 
             // RecordWriter.stringWrite3(((NeuralNetwork)mlp.analyser.h).getLayer(1).toString());
-            //RecordWriter.stringWrite3(mlp.analyser.h.toString());
+            // RecordWriter.stringWrite3(mlp.analyser.h.toString());
             count++;
             if (count < 1000) {
                 final GameRecorder initGr = new GameRecorder(INIT_GAME);
