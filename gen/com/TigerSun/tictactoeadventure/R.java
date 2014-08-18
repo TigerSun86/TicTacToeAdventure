@@ -35,31 +35,32 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f090018;
-        public static final int mainScreenTR=0x7f090002;
-        public static final int oCustom=0x7f090015;
-        public static final int oCustomDifficultyET=0x7f090016;
-        public static final int oDifficultyRB=0x7f09000f;
-        public static final int oEasy=0x7f090011;
-        public static final int oHell=0x7f090014;
-        public static final int oHuman=0x7f090010;
-        public static final int oNightmare=0x7f090013;
-        public static final int oNormal=0x7f090012;
-        public static final int okButton=0x7f090000;
-        public static final int playerOLL=0x7f09000d;
-        public static final int playerOTV=0x7f09000e;
-        public static final int playerXLL=0x7f090003;
-        public static final int playerXTV=0x7f090004;
-        public static final int startBT=0x7f090017;
-        public static final int surface_view=0x7f090001;
-        public static final int xCustom=0x7f09000b;
-        public static final int xCustomDifficultyET=0x7f09000c;
-        public static final int xDifficultyRB=0x7f090005;
-        public static final int xEasy=0x7f090007;
-        public static final int xHell=0x7f09000a;
-        public static final int xHuman=0x7f090006;
-        public static final int xNightmare=0x7f090009;
-        public static final int xNormal=0x7f090008;
+        public static final int TipsTV=0x7f090002;
+        public static final int action_settings=0x7f090019;
+        public static final int mainScreenTR=0x7f090000;
+        public static final int oCustom=0x7f090016;
+        public static final int oCustomDifficultyET=0x7f090017;
+        public static final int oDifficultyRB=0x7f090010;
+        public static final int oEasy=0x7f090012;
+        public static final int oHell=0x7f090015;
+        public static final int oHuman=0x7f090011;
+        public static final int oNightmare=0x7f090014;
+        public static final int oNormal=0x7f090013;
+        public static final int okButton=0x7f090001;
+        public static final int playerOLL=0x7f09000e;
+        public static final int playerOTV=0x7f09000f;
+        public static final int playerXLL=0x7f090004;
+        public static final int playerXTV=0x7f090005;
+        public static final int startBT=0x7f090018;
+        public static final int surface_view=0x7f090003;
+        public static final int xCustom=0x7f09000c;
+        public static final int xCustomDifficultyET=0x7f09000d;
+        public static final int xDifficultyRB=0x7f090006;
+        public static final int xEasy=0x7f090008;
+        public static final int xHell=0x7f09000b;
+        public static final int xHuman=0x7f090007;
+        public static final int xNightmare=0x7f09000a;
+        public static final int xNormal=0x7f090009;
     }
     public static final class layout {
         public static final int activity_game_board_display=0x7f030000;

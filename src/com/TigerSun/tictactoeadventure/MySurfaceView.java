@@ -89,7 +89,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
     private boolean waitInput = false;
 
     public Handler handler = null;
-    
+
     public MySurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.setKeepScreenOn(false);
@@ -186,9 +186,9 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
     private void saveGame () {
         if (perform.isEnd()) {
             if (perform.winner() == PM.TIE) {
-                drawMsg("Game tie");
+                setTestView("Game tie");
             } else {
-                drawMsg("Winner is player " + perform.winner());
+                setTestView("Winner is player " + perform.winner());
             }
             Log.d(MODEL, "Player " + perform.winner() + " won");
 
@@ -255,24 +255,6 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         }
     }
 
-    private void drawMsg (String s) {
-        try {
-            canvas = sfh.lockCanvas();
-            if (canvas != null) {
-                drawBoard();
-                drawPieces();
-                Paint paint = new Paint();
-                paint.setColor(Color.WHITE);
-                paint.setTextSize(20);
-                canvas.drawText(s, 100, 25, paint);
-            }
-        } catch (Exception e) {
-            Log.e(MODEL, "draw is Error!");
-        } finally {
-            if (canvas != null) sfh.unlockCanvasAndPost(canvas);
-        }
-    }
-
     @Override
     public void run () {
         draw();
@@ -293,6 +275,14 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
             }
 
             draw();
+
+            final String s =
+                    "Player "
+                            + perform.gr.getLastRecord().player
+                            + " moved in "
+                            + ((Position) perform.gr.getLastRecord().action)
+                                    .toString();
+            setTestView(s);
             try {
                 Thread.sleep(100);
             } catch (Exception e) {
@@ -304,7 +294,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 
     @Override
     public boolean onTouchEvent (final MotionEvent event) {
-        if (perform.getCurPlayerType() != PM.T_HUMAN) {
+        if (perform.getCurPlayerType() != PM.T_HUMAN || perform.isEnd()) {
             return true;
         }
 
@@ -335,6 +325,10 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         // tips.
         selectedPos = action;
 
+        final String s =
+                "The machine learning AI suggests " + action.toString();
+        setTestView(s);
+
         setOKBTEnabled(true);
     }
 
@@ -354,9 +348,20 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         }
     };
 
+    public static final int MSG_BT = 0;
+    public static final int MSG_TV = 1;
+
     private void setOKBTEnabled (boolean enabled) {
         Message message = Message.obtain();
+        message.what = MSG_BT;
         message.obj = enabled;
+        handler.sendMessage(message);
+    }
+
+    private void setTestView (String s) {
+        Message message = Message.obtain();
+        message.what = MSG_TV;
+        message.obj = s;
         handler.sendMessage(message);
     }
 
@@ -391,9 +396,9 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 
         if (perform.isEnd()) {
             if (perform.winner() == PM.TIE) {
-                drawMsg("Game tie");
+                //drawMsg("Game tie");
             } else {
-                drawMsg("Winner is player " + perform.winner());
+                //drawMsg("Winner is player " + perform.winner());
             }
             Log.d(MODEL, "Player " + perform.winner() + " won");
             String winner;

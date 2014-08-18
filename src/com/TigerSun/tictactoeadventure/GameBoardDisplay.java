@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class GameBoardDisplay extends Activity {
     private static final String MODEL = "GBD";
@@ -27,9 +28,16 @@ public class GameBoardDisplay extends Activity {
         final Button okBT = (Button) findViewById(R.id.okButton);
         okBT.setOnClickListener(sfv.okBTListener);
         
+        final TextView tv = (TextView)findViewById(R.id.TipsTV);
+        
         handler = new Handler() {
             public void handleMessage (Message msg) {
-                okBT.setEnabled((Boolean) msg.obj);
+                if (msg.what == MySurfaceView.MSG_BT){
+                    okBT.setEnabled((Boolean) msg.obj);
+                } else if (msg.what == MySurfaceView.MSG_TV) {
+                    tv.setText((String)msg.obj);
+                }
+
                 super.handleMessage(msg); 
             }
         };

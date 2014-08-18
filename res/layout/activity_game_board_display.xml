@@ -6,16 +6,32 @@
     android:orientation="vertical"
     tools:context=".GameBoardDisplay" >
 
+    <TableRow
+        android:id="@+id/mainScreenTR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
         <Button
             android:id="@+id/okButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/OKButton" />
 
-        <com.TigerSun.tictactoeadventure.MySurfaceView
-            android:id="@+id/surface_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:keepScreenOn="true" />
+        <TextView
+            android:id="@+id/TipsTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text=""
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </TableRow>
+
+    <com.TigerSun.tictactoeadventure.MySurfaceView
+        android:id="@+id/surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:keepScreenOn="true" />
+
 </LinearLayout>
