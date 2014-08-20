@@ -255,6 +255,49 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         }
     }
 
+    private void drawImagineLine (Position p) {
+        final TttState tttState = (TttState) perform.getLastState();
+        int player = tttState.get(p.level, p.row, p.column);
+        if (player == PM.P_EMPTY) {
+            player = perform.gr.getLastRecord().nextPlayer;
+        }
+        final Paint paint = playerPaint[player];
+
+        final ArrayList<ArrayList<Position>> routes =
+                TttState.getRelatedPostions(p);
+        for (ArrayList<Position> r : routes) {
+            for (Position pt : r) {
+                final PointF fp =
+                        boardLines.getPointOfPiece(pt.level, pt.row, pt.column);
+                canvas.drawCircle(fp.x, fp.y, boardLines.getRadius() / 2, paint);
+            }
+
+            final Position p1 = r.get(0);
+            final Position p2 = r.get(3);
+            final PointF fp1 =
+                    boardLines.getPointOfPiece(p1.level, p1.row, p1.column);
+            final PointF fp2 =
+                    boardLines.getPointOfPiece(p2.level, p2.row, p2.column);
+            canvas.drawLine(fp1.x, fp1.y, fp2.x, fp2.y, paint);
+        }
+    }
+
+    private void drawTouch (Position pos) {
+        try {
+            canvas = sfh.lockCanvas();
+            if (canvas != null) {
+                drawBoard();
+                drawPieces();
+                drawSelectedAndRecommended();
+                drawImagineLine(pos);
+            }
+        } catch (Exception e) {
+            Log.e(MODEL, "draw is Error!");
+        } finally {
+            if (canvas != null) sfh.unlockCanvasAndPost(canvas);
+        }
+    }
+
     @Override
     public void run () {
         draw();
@@ -308,8 +351,11 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
                     // If empty, make a move in this position.
                     selectedPos = pos;
                     setOKBTEnabled(true);
-                    draw();
+                } else { // clicked to cancel selection.
+                    selectedPos = null;
+                    setOKBTEnabled(false);
                 }
+                drawTouch(pos);
             }
         }
         return true;
@@ -396,9 +442,9 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 
         if (perform.isEnd()) {
             if (perform.winner() == PM.TIE) {
-                //drawMsg("Game tie");
+                // drawMsg("Game tie");
             } else {
-                //drawMsg("Winner is player " + perform.winner());
+                // drawMsg("Winner is player " + perform.winner());
             }
             Log.d(MODEL, "Player " + perform.winner() + " won");
             String winner;

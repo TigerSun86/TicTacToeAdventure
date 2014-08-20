@@ -155,6 +155,30 @@ public class TttState extends GameState {
         return new Position(l, r, c);
     }
 
+    public static ArrayList<ArrayList<Position>> getRelatedPostions(Position p){
+        final ArrayList<ArrayList<Position>> ret = new ArrayList<ArrayList<Position>>();
+        
+        final int bi = getBitIndex(p.level, p.row, p.column);
+        final long mask = 1L << bi;
+        
+        for (long r: winRoutes){
+            if((r & mask) != 0L){
+                final ArrayList<Position> oneRoute = new ArrayList<Position>();
+                long tempR = r;
+                while(tempR != 0L){ // loop 4 times.
+                    // Find the index of the set bit.
+                    final int index = Long.numberOfTrailingZeros(tempR);
+                    final Position pos = getPosition(index);
+                    oneRoute.add(pos);
+                    tempR &= ~(1L << index); // clear this bit.
+                }
+                ret.add(oneRoute);
+            }
+        }
+        
+        return ret;
+    }
+    
     private static long[] winRoutes = {
             // Straight
             // level changes, other remain
