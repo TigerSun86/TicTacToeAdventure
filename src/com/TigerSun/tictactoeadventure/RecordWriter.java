@@ -46,10 +46,10 @@ public class RecordWriter {
     public static Hypothesis readAI () {
         final Hypothesis h;
         final String aiS = readString(AIFN);
-        if (aiS != null){
+        if (aiS != null) {
             final String[] temp1 = aiS.split(String.format("%n"));
             // Use the last ai.
-            final String[] s = temp1[temp1.length -1].split(" ");
+            final String[] s = temp1[temp1.length - 1].split(" ");
             final String className = s[0];
             if (className.equals(LmsHypo.class.getSimpleName())) {
                 final ArrayList<Double> weights = new ArrayList<Double>();
@@ -61,7 +61,7 @@ public class RecordWriter {
                 h = null;
             }
         } else { // No ai file.
-            h =  null;
+            h = null;
         }
         return h;
     }
@@ -201,10 +201,10 @@ public class RecordWriter {
         final int r = Integer.valueOf(s2[3]);
         final int c = Integer.valueOf(s2[4]);
         final Position pos = new Position(l, r, c);
-        final int player = Integer.valueOf(s2[5]);      // The player made this
-        // action.
-        final int nextPlayer = Integer.valueOf(s2[6]);  // The player about to
-                                                       // make action.
+        // The player made this action.
+        final int player = Integer.valueOf(s2[5]);
+        // The player about to make action.
+        final int nextPlayer = Integer.valueOf(s2[6]);
         final int winner = Integer.valueOf(s2[7]);
         final Record rec = new Record(state, pos, player, nextPlayer, winner);
         return rec;
