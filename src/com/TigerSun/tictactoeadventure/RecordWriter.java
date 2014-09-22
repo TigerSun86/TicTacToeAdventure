@@ -36,10 +36,10 @@ public class RecordWriter {
     private static final String PRE = "rec";
     private static final String EXT = ".txt";
 
-    public static void writeAI (Hypothesis h) {
+    public static void writeAI (Hypothesis h,boolean append) {
         writeString(
                 h.getClass().getSimpleName() + " " + h.toString()
-                        + String.format("%n"), AIFN);
+                        + String.format("%n"), AIFN,append);
 
     }
 
@@ -94,7 +94,7 @@ public class RecordWriter {
                 i++;
             }
 
-            writeString(sb.toString(), fileName);
+            writeString(sb.toString(), fileName, false);
         }
     }
 
@@ -119,7 +119,7 @@ public class RecordWriter {
         return grs;
     }
 
-    private static void writeString (String s, String fileName) {
+    private static void writeString (String s, String fileName, final boolean append) {
         BufferedWriter bw = null;
         try {
             if (Environment.getExternalStorageState() != null) {
@@ -131,20 +131,20 @@ public class RecordWriter {
                 if (!f.exists()) {
                     f.createNewFile(); // Create file.
                 }
-                bw = new BufferedWriter(new FileWriter(f, true));
+                bw = new BufferedWriter(new FileWriter(f, append));
                 bw.write(s); // Write one move to file.
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.e(MODEL, "FileNotFoundException");
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(MODEL, "IOException");
         } finally {
             try {
                 if (bw != null) {
                     bw.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(MODEL, "IOException");
             }
         }
     }
@@ -176,16 +176,16 @@ public class RecordWriter {
         } catch (FileNotFoundException e) {
             ret = null; // No such file just return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(MODEL, "IOException");
         } finally {
             try {
                 if (br != null) {
                     br.close();
                 }
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Log.e(MODEL, "FileNotFoundException");
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(MODEL, "IOException");
             }
         }
         return ret;

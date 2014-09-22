@@ -16,18 +16,18 @@ import com.TigerSun.tictactoeadventure.util.Position;
  * @date May 23, 2014 8:40:40 PM
  */
 public class BoardLines {
-    private static final float GAP_HOR_TOP_AHEAD = 160f;
-    private static final float GAP_HOR_TOP_BEHIND = 20f;
-    private static final float GAP_HOR_BOTT_AHEAD = 20f;
-    // private static final float GAP_HOR_BOTT_BEHIND = 80f;
-    private static final float GAP_VER_AHEAD = 50f;
-    private static final float GAP_VER_BEHIND = 50f;
-    private static final float GAP_VER_INTERVAL = 50f;
-
     private static final int MAX_LEVELS = 4;
     private static final int MAX_ROWS = MAX_LEVELS;
     private static final int MAX_COLS = MAX_LEVELS;
+    
+    private float gapHorTopAhead;
+    private float gapHorTopBehind;
+    private float gapHorBottomAhead;
 
+    private float gapVerAhead;
+    private float gapVerbehind;
+    private float gapVerInterval;
+    
     private float oneBoardHeight;
     private float gridWidth;
     private float gridHeight;
@@ -37,7 +37,8 @@ public class BoardLines {
     private ArrayList<Line> lines;
     private float radius;
 
-    public BoardLines (final int w, final int h) {
+    public BoardLines(final int w, final int h) {
+        initBoardGap(w, h);
         initSizeData(w, h);
         initIntersections();
         initPieces();
@@ -94,11 +95,21 @@ public class BoardLines {
         return radius;
     }
 
+    private void initBoardGap (final int w, final int h) {
+        gapHorTopAhead = ((float) w / 3);
+        gapHorTopBehind = ((float) w / 16);
+        gapHorBottomAhead = ((float) w / 16);
+        gapVerAhead = ((float) w / 16);
+        gapVerbehind = ((float) w / 16);
+        gapVerInterval = ((float) w / 16);
+
+    }
+
     private void initSizeData (final int w, final int h) {
         /* Initialize screen size data. */
-        final float oneBoardWidth = w - GAP_HOR_TOP_AHEAD - GAP_HOR_TOP_BEHIND;
+        final float oneBoardWidth = w - gapHorTopAhead - gapHorTopBehind;
         oneBoardHeight =
-                (h - GAP_VER_AHEAD - GAP_VER_BEHIND - (GAP_VER_INTERVAL * 3))
+                (h - gapVerAhead - gapVerbehind - (gapVerInterval * 3))
                         / MAX_LEVELS;
 
         gridWidth = oneBoardWidth / MAX_COLS;
@@ -133,7 +144,7 @@ public class BoardLines {
         intersections = new PointF[MAX_LEVELS][MAX_ROWS + 1][MAX_COLS + 1];
 
         // Level 0, row 0.
-        intersections[0][0][0] = new PointF(GAP_HOR_TOP_AHEAD, GAP_VER_AHEAD);
+        intersections[0][0][0] = new PointF(gapHorTopAhead, gapVerAhead);
         PointF prior = intersections[0][0][0];
         for (int i = 1; i < MAX_COLS + 1; i++) {
             intersections[0][0][i] = new PointF(prior.x + gridWidth, prior.y);
@@ -141,9 +152,9 @@ public class BoardLines {
         }
 
         float xShift =
-                Math.abs(((float) GAP_HOR_TOP_AHEAD - GAP_HOR_BOTT_AHEAD) / 4);
+                Math.abs(((float) gapHorTopAhead - gapHorBottomAhead) / 4);
 
-        if (GAP_HOR_TOP_AHEAD > GAP_HOR_BOTT_AHEAD) {
+        if (gapHorTopAhead > gapHorBottomAhead) {
             // Next row will be left shifted.
             xShift *= -1;
         }
@@ -157,7 +168,7 @@ public class BoardLines {
             }
         }
         // Level 1,2,3.
-        float yShift = oneBoardHeight + GAP_VER_INTERVAL;
+        float yShift = oneBoardHeight + gapVerInterval;
         for (int level = 1; level < MAX_LEVELS; level++) {
             for (int row = 0; row < MAX_ROWS + 1; row++) {
                 for (int col = 0; col < MAX_COLS + 1; col++) {
@@ -166,7 +177,7 @@ public class BoardLines {
                     intersections[level][row][col] = new PointF(newX, newY);
                 }
             }
-            yShift += oneBoardHeight + GAP_VER_INTERVAL;
+            yShift += oneBoardHeight + gapVerInterval;
         }
     }
 

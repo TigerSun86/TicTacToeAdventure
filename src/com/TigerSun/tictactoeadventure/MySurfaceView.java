@@ -44,7 +44,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
     public Handler handler = null;
 
     private static final String MODEL = "MySurfaceView";
-    
+
     private static final int PAINT_BOARD = 0;
     private static final int PAINT_P1 = 1; // The same with PM.P_1.
     private static final int PAINT_P2 = 2; // The same with PM.P_2.
@@ -243,10 +243,10 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
 
             // Let machine learning AI learn this game.
             Learner.learnOneGame(perform.prob.pm, perform.gr, learntAi.analyser);
-            // Save current machine learning AI to file.
-            RecordWriter.writeAI(learntAi.analyser.h);
+            // Save current machine learning AI to file. Only keep one AI.
+            RecordWriter.writeAI(learntAi.analyser.h, false);
             // Save this game record.
-            RecordWriter.writeRecord(perform.gr);
+            //RecordWriter.writeRecord(perform.gr);
         }
     }
 
@@ -259,7 +259,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
                 if (perform != null) {
                     drawSelectedAndRecommended();
                     drawLastMove();
-                    
+
                     if (perform.isEnd()) {
                         drawWin();
                     } else {
@@ -478,8 +478,7 @@ public class MySurfaceView extends SurfaceView implements Callback, Runnable {
         // tips.
         selectedPos = action;
 
-        final String s =
-                "The machine learning AI suggests " + action.toString();
+        final String s = "The learnt AI suggests " + action.toString();
         setTestView(s);
 
         setOKBTEnabled(true);

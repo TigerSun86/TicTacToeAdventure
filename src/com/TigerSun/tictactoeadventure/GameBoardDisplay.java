@@ -9,12 +9,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class GameBoardDisplay extends Activity {
-    private static final String MODEL = "GBD";
-    private static final boolean DBG = true;
-
     private MySurfaceView sfv;
     private Button okBT;
-    
+
     private Handler handler;
 
     @Override
@@ -27,22 +24,23 @@ public class GameBoardDisplay extends Activity {
 
         final Button okBT = (Button) findViewById(R.id.okButton);
         okBT.setOnClickListener(sfv.okBTListener);
-        
-        final TextView tv = (TextView)findViewById(R.id.TipsTV);
-        
+        okBT.setEnabled(false); // At the beginning unclickable;
+
+        final TextView tv = (TextView) findViewById(R.id.TipsTV);
+
         handler = new Handler() {
             public void handleMessage (Message msg) {
-                if (msg.what == MySurfaceView.MSG_BT){
+                if (msg.what == MySurfaceView.MSG_BT) {
                     okBT.setEnabled((Boolean) msg.obj);
                 } else if (msg.what == MySurfaceView.MSG_TV) {
-                    tv.setText((String)msg.obj);
+                    tv.setText((String) msg.obj);
                 }
 
-                super.handleMessage(msg); 
+                super.handleMessage(msg);
             }
         };
         sfv.handler = this.handler;
-        
+
         Intent intent = this.getIntent();
         int p1 = intent.getIntExtra("PX", 0);
         int p2 = intent.getIntExtra("PO", 0);

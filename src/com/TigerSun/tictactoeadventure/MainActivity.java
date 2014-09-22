@@ -9,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 
 public class MainActivity extends Activity {
     private Button startBT;
@@ -21,8 +22,10 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         p1RG = (RadioGroup) findViewById(R.id.xDifficultyRB);
+        p1RG.check(R.id.xHuman); // Default
         p2RG = (RadioGroup) findViewById(R.id.oDifficultyRB);
-
+        p2RG.check(R.id.oEasy); // Default
+        
         startBT = (Button) findViewById(R.id.startBT);
         startBT.setOnClickListener(startBTListener);
     }
@@ -66,15 +69,22 @@ public class MainActivity extends Activity {
 
             intent.putExtra("PX", p1);
             intent.putExtra("PO", p2);
-            intent.putExtra("XDEPTH", getDepth(((EditText) findViewById(R.id.xCustomDifficultyET)).getText().toString()));
-            intent.putExtra("ODEPTH", getDepth(((EditText) findViewById(R.id.oCustomDifficultyET)).getText().toString()));
+            intent.putExtra(
+                    "XDEPTH",
+                    getDepth(((EditText) findViewById(R.id.xCustomDifficultyET))
+                            .getText().toString()));
+            intent.putExtra(
+                    "ODEPTH",
+                    getDepth(((EditText) findViewById(R.id.oCustomDifficultyET))
+                            .getText().toString()));
             startActivity(intent);
         }
-        private int getDepth(String s){
+
+        private int getDepth (String s) {
             int d;
-            try{
-                d= Integer.valueOf(s);
-            }catch(NumberFormatException e){
+            try {
+                d = Integer.valueOf(s);
+            } catch (NumberFormatException e) {
                 d = 1;
             }
             return d;
